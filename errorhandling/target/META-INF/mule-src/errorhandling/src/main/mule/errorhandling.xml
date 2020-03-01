@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="7bdf6a50-4cf4-4bb1-8b36-2c943b0a7d8b" basePath="/errorhandling">
+		<http:listener-connection host="0.0.0.0" port="8083" />
+	</http:listener-config>
+	<flow name="errorhandlingontinueFlow" doc:id="98805d83-5252-4eae-af3d-f8306daddd23" >
+		<http:listener doc:name="Listener" doc:id="2e8fbeda-30f7-4b0f-a57c-582f5b063453" config-ref="HTTP_Listener_config" path="/oncontinueerror"/>
+		<flow-ref doc:name="Flow Reference" doc:id="552bf4da-46c5-41f6-ba6d-47e3f2229964" name="errorhandlingFlow"/>
+		<set-payload value="continuepayload" doc:name="Set Payload" doc:id="3911929a-b7f5-40e1-b064-2ad32380261e" />
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ec0e4c7a-627e-4cc4-b168-6609fe6ec775" />
+		</error-handler>
+	</flow>
+	<flow name="errorhandlingFlow" doc:id="f9f9b205-f9e6-4bdc-b9dc-fd242ded814f" >
+		<set-variable value="FOur" doc:name="Set Variable" doc:id="2924bda4-8c07-45c2-a9ee-70cb9b127ab5" variableName="Age" />
+		<validation:is-number doc:name="Is number" doc:id="e2021069-b91f-4f0a-bd4a-2b78e53cfd80" value="#[vars.Age]" numberType="INTEGER" message="Not a Number" />
+		<error-handler>
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f3d40187-fb11-405d-994d-750048cde489" />
+		</error-handler>
+	</flow>
+	<flow name="errorhandlingPropagateFlow" doc:id="43bd94dd-417f-43a3-84ab-f52eb1114e74" >
+		<http:listener doc:name="Listener" doc:id="0d2a91cc-ecc0-4755-acc6-231bf9d4167d" config-ref="HTTP_Listener_config" path="/propagateerror"/>
+		<set-variable value="Madhu" doc:name="Set Variable" doc:id="7807225c-2597-4387-a307-a23bc7590d9d" variableName="Age"/>
+		<validation:is-number doc:name="Is number" doc:id="7ee04b14-ebe1-472b-8420-5884dfb418ca" value="#[vars.Age]" numberType="INTEGER"/>
+		<set-payload value="Setpayload2" doc:name="Set Payload 2" doc:id="9f247c1e-1569-4019-b713-672ac08f603d" />
+		<error-handler>
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="985db94b-3602-4cd2-8212-cc67e42119b0" type="ANY">
+				<set-payload value="OnErrorPropagate" doc:name="Set Payload Propagate" doc:id="af653b5a-512a-4a80-91cc-5d55c831a0cc" />
+				<logger level="INFO" doc:name="Logger" doc:id="d4cf1f27-1ff5-489b-99d3-877c963f1620" category="payload" message="#[payload]"/>	
+			</on-error-propagate>
+		</error-handler>
+	</flow>
+</mule>
